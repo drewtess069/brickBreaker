@@ -17,18 +17,18 @@ namespace brickBreaker
         Rectangle border = new Rectangle(0, 0, 500, 600);
         Rectangle ball = new Rectangle(245, 500, 10, 10);
 
-        Random randGen = new Random();
+        //Random randGen = new Random();
 
         int time = 0;
         int timerTick = 0;
 
-        int level1Bricks = 15;
+        int level1Bricks = 18;
         int level2Bricks = 20;
         int level3Bricks = 25;
 
-        int playerSpeed = 5;
+        int playerSpeed = 6;
         float ballXSpeed = 6;
-        float ballYSpeed = -7;
+        float ballYSpeed = 7;
 
         int regBrickWidth = 30;
         int regBrickHeight = 20;
@@ -111,6 +111,7 @@ namespace brickBreaker
                 border.Height = 610;
 
                 timeLabel.Text = $"Time:{time}";
+                this.Text = $"Time:{time}";
 
                 e.Graphics.DrawRectangle(greenPen, border);
                 e.Graphics.FillEllipse(whiteBrush, ball);
@@ -126,6 +127,7 @@ namespace brickBreaker
                 border.Height = 610;
 
                 timeLabel.Text = $"Time:{time}";
+                this.Text = $"Time:{time}";
 
                 e.Graphics.DrawRectangle(greenPen, border);
                 e.Graphics.FillEllipse(whiteBrush, ball);
@@ -193,6 +195,11 @@ namespace brickBreaker
         private void gameTimer_Tick(object sender, EventArgs e)
         {
             timerTick++;
+            if (timerTick == 50 && titleLabel.Text == "")
+            {
+                time++;
+                timeLabel.Text = $"Time: {time}";
+            }
 
             if (timerTick == 50)
             {
@@ -232,6 +239,12 @@ namespace brickBreaker
             }
             if (ball.Y > this.Height)
             {
+                ballYSpeed = 7;
+                ballXSpeed = 6;
+
+                player.X = 220;
+                player.Y = 550;
+
                 if (heart1.BackgroundImage != null)
                 {
                     heart1.BackgroundImage = null;
@@ -263,7 +276,7 @@ namespace brickBreaker
                     gameTimer.Stop();
                 }
             }
-            // Set up player intersections
+            // Set up player intersections with ball
             if (player.IntersectsWith(ball))
             {
                 ballYSpeed *= -1;
@@ -306,12 +319,13 @@ namespace brickBreaker
                     {
                         ballXSpeed = 4;
 
+
                         ball.Y = player.Y - ball.Height - 3;
                     }
                     else
                     {
                         ballXSpeed = 2;
-
+                        ballYSpeed *= 1.2f;
                         ball.Y = player.Y - ball.Height - 3;
                     }
                 }
@@ -322,32 +336,50 @@ namespace brickBreaker
 
                 if (ballXSpeed > 8)
                 {
-                    ballXSpeed *= 0.8f;
+                    ballXSpeed *= 0.5f;
                 }
                 if (ballYSpeed > 8)
                 {
                     ballYSpeed *= 0.8f;
                 }
             }
-                for(int i = 0; i < brick.Count; i++)
+            for (int i = 0; i < brick.Count; i++)
+            {
+                if (brick[i].IntersectsWith(ball))
                 {
-                    if (brick[i].IntersectsWith(ball))
-                    {
-                        brick.RemoveAt(i);
 
-                      if((ballXSpeed > 0) && (ball.Y > brick[i].Y && ball.Y < brick[i].Y + brick[i].Height))
-                        {
-                            ballXSpeed *= -1;
-                        }
-                      else if ((ballXSpeed < 0) && (ball.Y > brick[i].Y && ball.Y < brick[i].Y + brick[i].Height))
-                        {
-                            ballXSpeed *= -1;
-                        }
-                        else
-                        {
-                            ballYSpeed *= -1;
-                        }
-                    
+
+                    if ((ballXSpeed > 0) && (ball.Y > brick[i].Y && ball.Y < brick[i].Y + brick[i].Height))
+                    {
+                        ballXSpeed *= -1;
+                    }
+                    else if ((ballXSpeed < 0) && (ball.Y > brick[i].Y && ball.Y < brick[i].Y + brick[i].Height))
+                    {
+                        ballXSpeed *= -1;
+                    }
+                    else
+                    {
+                        ballYSpeed *= -1;
+                    }
+                    brick.RemoveAt(i);
+                }
+            }
+
+            if (brick.Count == 0)
+            {
+                if (gameState == "level 1")
+                {
+                    gameState = "level 2";
+
+                    GameInitialize("level 2");
+                }
+                else if (gameState == "level 2")
+                {
+                    GameInitialize("level 3");
+                }
+                else if (gameState == "level 3")
+                {
+                    gameState = "over";
                 }
             }
             Refresh();
@@ -371,38 +403,77 @@ namespace brickBreaker
 
         public void drawBricks(int levelBrick, string level)
         {
-            int brickX = randGen.Next(0 + borderWidth, this.Width - borderWidth - regBrickWidth);
-            int brickY = randGen.Next(0 + borderWidth, 300);
 
-            Rectangle brick1 = new Rectangle(brickX, brickY, regBrickWidth, regBrickHeight);
-            brick.Add(brick1);
 
-            for (int i = 1; i < levelBrick; i++)
+            if (level == "level 1")
             {
-                brickX = randGen.Next(0 + borderWidth, this.Width - borderWidth - regBrickWidth);
-                brickY = randGen.Next(0 + borderWidth, 200);
+                int brickX = 65;
+                int brickY = 50;
 
-                if (level == "level 1")
+                for (int a = 0; a < 3; a++)
                 {
-                    Rectangle newBrick = new Rectangle(brickX, brickY, regBrickWidth, regBrickHeight);
-
-                    for (int a = 0; a < brick.Count; a++)
+                    for (int i = 1; i < levelBrick / 3 + 1; i++)
                     {
-                        while (newBrick.IntersectsWith(brick[a])){
-                            brickX = randGen.Next(0 + borderWidth, this.Width - borderWidth - regBrickWidth);
-                            brickY = randGen.Next(0 + borderWidth, 200);
+                        brick.Add(new Rectangle(brickX, brickY, regBrickWidth, regBrickHeight));
 
-                            newBrick = new Rectangle(brickX, brickY, regBrickWidth, regBrickHeight);
-                        } 
+                        brickX += 70;
                     }
-                   brick.Add(newBrick);
+                    brickX = 65; ;
+                    brickY += 50;
                 }
-                else
-                {
-                    int width = randGen.Next(regBrickWidth - 10, regBrickWidth + 5);
-                    int height = randGen.Next(regBrickHeight - 5, regBrickHeight + 10);
+            }
+            else if (level == "level 2")
+            {
+                int brickX = 70;
+                int brickY = 30;
 
-                    brick.Add(new Rectangle(brickX, brickY, width, height));
+
+                for (int i = 0; i < 9; i++)
+                {
+                    brick.Add(new Rectangle(brickX, brickY, regBrickWidth, regBrickHeight));
+
+                    brickX += 40;
+                }
+
+                brickY = 60;
+                brickX = 70 + 40;
+
+                for (int i = 0; i < 7; i++)
+                {
+                    brick.Add(new Rectangle(brickX, brickY, regBrickWidth, regBrickHeight));
+
+                    brickX += 40;
+                }
+
+                brickY = 90;
+                brickX = 70 + 80;
+
+                for (int i = 0; i < 5; i++)
+                {
+                    brick.Add(new Rectangle(brickX, brickY, regBrickWidth, regBrickHeight));
+
+                    brickX += 40;
+                }
+
+                brickY = 120;
+                brickX = 70 + 120;
+
+                for (int i = 0; i < 3; i++)
+                {
+                    brick.Add(new Rectangle(brickX, brickY, regBrickWidth, regBrickHeight));
+
+                    brickX += 40;
+                }
+
+
+                brickY = 150;
+                brickX = 70 + 160;
+
+                for (int i = 0; i < 1; i++)
+                {
+                    brick.Add(new Rectangle(brickX, brickY, regBrickWidth, regBrickHeight));
+
+                    brickX += 40;
                 }
             }
         }
