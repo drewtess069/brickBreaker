@@ -17,14 +17,10 @@ namespace brickBreaker
         Rectangle border = new Rectangle(0, 0, 500, 600);
         Rectangle ball = new Rectangle(245, 500, 10, 10);
 
-        //Random randGen = new Random();
+        //Random powerGen = new Random();
 
         int time = 0;
         int timerTick = 0;
-
-        int level1Bricks = 18;
-        int level2Bricks = 20;
-        int level3Bricks = 25;
 
         int playerSpeed = 6;
         float ballXSpeed = 6;
@@ -79,15 +75,15 @@ namespace brickBreaker
 
             if (gameState == "level 1")
             {
-                drawBricks(level1Bricks, "level 1");
+                drawBricks("level 1");
             }
             else if (gameState == "level 2")
             {
-                drawBricks(level2Bricks, "level 2");
+                drawBricks("level 2");
             }
             else if (gameState == "level 3")
             {
-                drawBricks(level3Bricks, "level 3");
+                drawBricks("level 3");
             }
 
             Refresh();
@@ -138,6 +134,22 @@ namespace brickBreaker
                     e.Graphics.FillRectangle(orangeBrush, brick[i]);
                 }
             }
+            if (gameState == "level 3")
+            {
+                border.Height = 610;
+
+                timeLabel.Text = $"Time:{time}";
+                this.Text = $"Time:{time}";
+
+                e.Graphics.DrawRectangle(greenPen, border);
+                e.Graphics.FillEllipse(whiteBrush, ball);
+                e.Graphics.FillRectangle(blackBrush, player);
+
+                for (int i = 0; i < brick.Count; i++)
+                {
+                    e.Graphics.FillRectangle(yellowBrush, brick[i]);
+                }
+            }
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
@@ -153,7 +165,7 @@ namespace brickBreaker
                 case Keys.Space:
                     if (gameState == "waiting")
                     {
-                        GameInitialize("level 1");
+                        GameInitialize("level 3");
                     }
                     break;
                 case Keys.Escape:
@@ -349,11 +361,11 @@ namespace brickBreaker
                 {
 
 
-                    if ((ballXSpeed > 0) && (ball.Y > brick[i].Y && ball.Y < brick[i].Y + brick[i].Height))
+                    if ((ballXSpeed > 0) && (ball.Y > brick[i].Y && ball.Y < brick[i].Y + brick[i].Height - 2))
                     {
                         ballXSpeed *= -1;
                     }
-                    else if ((ballXSpeed < 0) && (ball.Y > brick[i].Y && ball.Y < brick[i].Y + brick[i].Height))
+                    else if ((ballXSpeed < 0) && (ball.Y > brick[i].Y && ball.Y < brick[i].Y + brick[i].Height - 2))
                     {
                         ballXSpeed *= -1;
                     }
@@ -389,6 +401,8 @@ namespace brickBreaker
         {
             gameTimer.Enabled = true;
 
+            subTitleLabel.Visible = false;
+
             continueButton.Enabled = false;
             closeButton.Enabled = false;
 
@@ -399,9 +413,10 @@ namespace brickBreaker
         private void closeButton_Click(object sender, EventArgs e)
         {
             Application.Exit();
+            this.Close();
         }
 
-        public void drawBricks(int levelBrick, string level)
+        public void drawBricks(string level)
         {
 
 
@@ -412,7 +427,7 @@ namespace brickBreaker
 
                 for (int a = 0; a < 3; a++)
                 {
-                    for (int i = 1; i < levelBrick / 3 + 1; i++)
+                    for (int i = 1; i < 6 + 1; i++)
                     {
                         brick.Add(new Rectangle(brickX, brickY, regBrickWidth, regBrickHeight));
 
@@ -475,6 +490,81 @@ namespace brickBreaker
 
                     brickX += 40;
                 }
+            }
+            else
+            {
+                int brickX = 45;
+                int brickY = 15;
+
+
+                for (int i = 0; i < 10; i++)
+                {
+                    brick.Add(new Rectangle(brickX, brickY, regBrickWidth, regBrickHeight));
+
+                    brickX += 40;
+                }
+
+                brickY = 45;
+                brickX = 15;
+
+                for (int i = 0; i < 12; i++)
+                {
+                    brick.Add(new Rectangle(brickX, brickY, regBrickWidth, regBrickHeight));
+
+                    brickX += 40;
+                }
+
+                brickY = 75;
+
+                for (int a = 0; a < 3; a++)
+                {
+                    brickX = 15;
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        brick.Add(new Rectangle(brickX, brickY, regBrickWidth, regBrickHeight));
+
+                        brickX += 40;
+                    }
+
+                    brickX += 120;
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        brick.Add(new Rectangle(brickX, brickY, regBrickWidth, regBrickHeight));
+
+                        brickX += 40;
+                    }
+
+                    brickX += 120;
+                    for (int i = 0; i < 2; i++)
+                    {
+                        brick.Add(new Rectangle(brickX, brickY, regBrickWidth, regBrickHeight));
+
+                        brickX += 40;
+                    }
+
+                    brickY += 30;
+                }
+                brickX = 15;
+
+                for (int i = 0; i < 12; i++)
+                {
+                    brick.Add(new Rectangle(brickX, brickY, regBrickWidth, regBrickHeight));
+
+                    brickX += 40;
+                }
+
+                brickY += 30;
+                brickX = 55;
+
+                for (int i = 0; i < 10; i++)
+                {
+                    brick.Add(new Rectangle(brickX, brickY, regBrickWidth, regBrickHeight));
+
+                    brickX += 40;
+                }
+
             }
         }
     }
