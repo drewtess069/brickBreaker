@@ -8,36 +8,60 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
+using System.Media;
 
 namespace brickBreaker
 {
     public partial class Form1 : Form
     {
+        //Set up rectangles
+
         Rectangle player = new Rectangle(220, 550, 60, 10);
         Rectangle border = new Rectangle(0, 0, 500, 600);
         Rectangle ball = new Rectangle(245, 500, 10, 10);
-
-        //Random powerGen = new Random();
+        
+        //Set up random 
+        Random powerGen = new Random();
 
         int time = 0;
         int timerTick = 0;
+        int lives = 3;
 
         int playerSpeed = 6;
-        float ballXSpeed = 6;
+        float ballXSpeed = 1;
         float ballYSpeed = 7;
 
         int regBrickWidth = 30;
         int regBrickHeight = 20;
         int borderWidth = 10;
 
+        int powerWidth = 25;
+        int powerHeight = 25;
+        int powerSpeed = 5;
+        int powerCount = 0;
+
+        int slowballChange = 0;
+
+        int powertime = 0;
+
         string gameState = "waiting";
 
         bool leftDown = false;
         bool rightDown = false;
 
+        bool slowBall = false;
+        bool bigBall = false;
+        bool bigPlayer = false;
+
         List<Rectangle> brick = new List<Rectangle>();
         List<int> brickWidth = new List<int>();
         List<int> brickHeight = new List<int>();
+        List<Rectangle> powers = new List<Rectangle>();
+        List<string> powertype = new List<string>();
+
+        Image slowPower = (Properties.Resources.slow);
+        Image bigBallPower = (Properties.Resources.largeBall);
+        Image bigPlayerPower = (Properties.Resources.largePlayer);
 
         SolidBrush whiteBrush = new SolidBrush(Color.White);
         SolidBrush blackBrush = new SolidBrush(Color.Black);
@@ -45,18 +69,20 @@ namespace brickBreaker
         SolidBrush orangeBrush = new SolidBrush(Color.Orange);
         SolidBrush yellowBrush = new SolidBrush(Color.Yellow);
 
-        Pen blackPen = new Pen(Color.Black, 20);
+        Pen blackPen = new Pen(Color.Black, 5);
         Pen greenPen = new Pen(Color.DarkGreen, 20);
         public Form1()
         {
             InitializeComponent();
+            Cursor.Hide();
         }
 
         public void GameInitialize(string level)
         {
             brick.Clear();
-            brickWidth.Clear();
-            brickHeight.Clear();
+
+            powers.Clear();
+            powertype.Clear();
 
             player.X = 220;
             player.Y = 550;
@@ -64,7 +90,12 @@ namespace brickBreaker
             ball.Y = 250;
             ball.X = 245;
 
-            time = 0;
+            ballXSpeed = 1;
+            ballYSpeed = 7;
+
+            powers.Clear();
+            powertype.Clear();
+
             timerTick = 0;
 
             titleLabel.Text = "3";
@@ -76,6 +107,7 @@ namespace brickBreaker
             if (gameState == "level 1")
             {
                 drawBricks("level 1");
+                lives = 3;
             }
             else if (gameState == "level 2")
             {
@@ -100,7 +132,7 @@ namespace brickBreaker
 
                 e.Graphics.DrawRectangle(blackPen, border);
                 e.Graphics.FillEllipse(whiteBrush, ball);
-                e.Graphics.FillRectangle(blackBrush, player);
+                e.Graphics.FillRectangle(whiteBrush, player);
             }
             if (gameState == "level 1")
             {
@@ -111,11 +143,28 @@ namespace brickBreaker
 
                 e.Graphics.DrawRectangle(greenPen, border);
                 e.Graphics.FillEllipse(whiteBrush, ball);
-                e.Graphics.FillRectangle(blackBrush, player);
+                e.Graphics.FillRectangle(whiteBrush, player);
 
                 for (int i = 0; i < brick.Count; i++)
                 {
                     e.Graphics.FillRectangle(redBrush, brick[i]);
+                }
+
+                for (int i = 0; i < powers.Count; i++)
+                { 
+
+                    if (powertype[i] == "slowBall")
+                    {
+                        e.Graphics.DrawImage(slowPower, powers[i]);
+                    }
+                    else if(powertype[i] == "bigBall")
+                    {
+                        e.Graphics.DrawImage(bigBallPower, powers[i]);
+                    }
+                    else if (powertype[i] == "bigPlayer")
+                    {
+                        e.Graphics.DrawImage(bigPlayerPower, powers[i]);
+                    }
                 }
             }
             if (gameState == "level 2")
@@ -127,11 +176,28 @@ namespace brickBreaker
 
                 e.Graphics.DrawRectangle(greenPen, border);
                 e.Graphics.FillEllipse(whiteBrush, ball);
-                e.Graphics.FillRectangle(blackBrush, player);
+                e.Graphics.FillRectangle(whiteBrush, player);
 
                 for (int i = 0; i < brick.Count; i++)
                 {
                     e.Graphics.FillRectangle(orangeBrush, brick[i]);
+                }
+
+                for (int i = 0; i < powers.Count; i++)
+                {
+
+                    if (powertype[i] == "slowBall")
+                    {
+                        e.Graphics.DrawImage(slowPower, powers[i]);
+                    }
+                    else if (powertype[i] == "bigBall")
+                    {
+                        e.Graphics.DrawImage(bigBallPower, powers[i]);
+                    }
+                    else if (powertype[i] == "bigPlayer")
+                    {
+                        e.Graphics.DrawImage(bigPlayerPower, powers[i]);
+                    }
                 }
             }
             if (gameState == "level 3")
@@ -143,11 +209,47 @@ namespace brickBreaker
 
                 e.Graphics.DrawRectangle(greenPen, border);
                 e.Graphics.FillEllipse(whiteBrush, ball);
-                e.Graphics.FillRectangle(blackBrush, player);
+                e.Graphics.FillRectangle(whiteBrush, player);
 
                 for (int i = 0; i < brick.Count; i++)
                 {
                     e.Graphics.FillRectangle(yellowBrush, brick[i]);
+                }
+
+                for (int i = 0; i < powers.Count; i++)
+                {
+
+                    if (powertype[i] == "slowBall")
+                    {
+                        e.Graphics.DrawImage(slowPower, powers[i]);
+                    }
+                    else if (powertype[i] == "bigBall")
+                    {
+                        e.Graphics.DrawImage(bigBallPower, powers[i]);
+                    }
+                    else if (powertype[i] == "bigPlayer")
+                    {
+                        e.Graphics.DrawImage(bigPlayerPower, powers[i]);
+                    }
+                }
+            }
+            if (gameState == "over")
+            {
+
+                titleLabel.Text = "Game Over";
+                timeLabel.Text = "";
+
+
+                e.Graphics.DrawRectangle(blackPen, border);
+                e.Graphics.FillEllipse(whiteBrush, ball);
+                e.Graphics.FillRectangle(whiteBrush, player);
+                if (lives > 0)
+                {
+                    subTitleLabel.Text = $"Your time was {time}\n\nPress space to play\n\nagain\n\nor escape to exit";
+                }
+                else if (lives == 0)
+                {
+                    subTitleLabel.Text = $"You Lose!\n\nPress space to play again\n\n or escape to exit";
                 }
             }
         }
@@ -163,9 +265,13 @@ namespace brickBreaker
                     leftDown = true;
                     break;
                 case Keys.Space:
-                    if (gameState == "waiting")
+                    if (gameState == "waiting" || gameState == "over")
                     {
-                        GameInitialize("level 3");
+                        GameInitialize("level 1");
+                        time = 0;
+                        heart1.BackgroundImage = Properties.Resources.heart;
+                        heart2.BackgroundImage = Properties.Resources.heart;    
+                        heart3.BackgroundImage = Properties.Resources.heart; 
                     }
                     break;
                 case Keys.Escape:
@@ -206,11 +312,64 @@ namespace brickBreaker
 
         private void gameTimer_Tick(object sender, EventArgs e)
         {
+            powertime++;
+
             timerTick++;
-            if (timerTick == 50 && titleLabel.Text == "")
+            if (timerTick % 50 == 0 && titleLabel.Text == "")
             {
                 time++;
+
                 timeLabel.Text = $"Time: {time}";
+            }
+
+            if (slowBall == true)
+            {
+                if (powertime < 150)
+                {
+                    if (slowballChange == 0)
+                    {
+                        slowballChange++;
+                        ballXSpeed *= 0.6f;
+                        ballYSpeed *= 0.6f;
+                    }
+                }
+                else
+                {
+                    ballXSpeed *=1.5f;
+                    ballYSpeed *=1.5f;
+                    slowBall = false;
+                    powerCount = 0;
+                }
+            }
+            else if (bigBall == true)
+            {
+                if (powertime < 150)
+                {
+                    ball.Width = 20;
+                    ball.Height = 20;
+                }
+                else
+                {
+                    ball.Width = 10;
+                    ball.Height = 10;
+                    bigBall = false;
+                    powerCount = 0;
+                }
+            }
+            else if (bigPlayer == true)
+            {
+                if (powertime < 150)
+                {
+                    //player.X -= 10;
+                    player.Width = 80;
+                }
+                else
+                {
+                    bigPlayer = false;
+                    //player.X += 10;
+                    player.Width -= 20;
+                    powerCount = 0;
+                }
             }
 
             if (timerTick == 50)
@@ -230,6 +389,13 @@ namespace brickBreaker
             {
                 ball.X += (int)ballXSpeed;
                 ball.Y += (int)ballYSpeed;
+
+                for (int i = 0; i < powers.Count; i++)
+                {
+                    int y = powers[i].Y + powerSpeed;
+                    powers[i] = new Rectangle(powers[i].X, y, powers[i].Width, powers[i].Height);
+                    //  powers[i].Y + powerSpeed;
+                }
             }
             //move hero 
             if (leftDown == true && player.X > 0 + borderWidth)
@@ -261,6 +427,8 @@ namespace brickBreaker
                 {
                     heart1.BackgroundImage = null;
 
+                    lives--;
+
                     ball.X = 245;
                     ball.Y = 200;
 
@@ -271,6 +439,8 @@ namespace brickBreaker
                 {
                     heart2.BackgroundImage = null;
 
+                    lives--;
+
                     ball.X = 245;
                     ball.Y = 200;
 
@@ -280,6 +450,8 @@ namespace brickBreaker
                 else
                 {
                     heart3.BackgroundImage = null;
+
+                    lives--;
 
                     Refresh();
                     Thread.Sleep(200);
@@ -293,87 +465,107 @@ namespace brickBreaker
             {
                 ballYSpeed *= -1;
 
-                Rectangle sec1 = new Rectangle(player.X, player.Y, 12, 10);
-                Rectangle sec2 = new Rectangle(player.X + 12, player.Y, 12, 10);
-                Rectangle sec3 = new Rectangle(player.X + 36, player.Y, 12, 10);
-                Rectangle sec4 = new Rectangle(player.X + 48, player.Y, 12, 10);
-                Rectangle sec5 = new Rectangle(player.X + 24, player.Y, 12, 10);
-
-                if (sec1.IntersectsWith(ball))
+                if (bigPlayer == false)
                 {
-                    if (ballXSpeed < 5)
-                    {
-                        ballXSpeed = -5;
 
-                        ball.Y = player.Y - ball.Height - 3;
-                    }
-                    else
-                    {
-                        ballXSpeed = -2;
-                        ball.Y = player.Y - ball.Height - 3;
-                    }
+                    Rectangle sec1 = new Rectangle(player.X, player.Y, 12, 10);
+                    Rectangle sec2 = new Rectangle(player.X + 12, player.Y, 12, 10);
+                    Rectangle sec3 = new Rectangle(player.X + 36, player.Y, 12, 10);
+                    Rectangle sec4 = new Rectangle(player.X + 48, player.Y, 12, 10);
+                    Rectangle sec5 = new Rectangle(player.X + 24, player.Y, 12, 10);
+
+                    intersections(sec1, sec2, sec3, sec4, sec5);
                 }
-                else if (sec2.IntersectsWith(ball))
+                else
                 {
-                    ballXSpeed *= 1.5f;
+                    Rectangle sec1 = new Rectangle(player.X, player.Y, 12, 10);
+                    Rectangle sec2 = new Rectangle(player.X + 16, player.Y, 12, 10);
+                    Rectangle sec3 = new Rectangle(player.X + 48, player.Y, 12, 10);
+                    Rectangle sec4 = new Rectangle(player.X + 64, player.Y, 12, 10);
+                    Rectangle sec5 = new Rectangle(player.X + 32, player.Y, 12, 10);
 
-                    ball.Y = player.Y - ball.Height - 3;
-                }
-                else if (sec3.IntersectsWith(ball))
-                {
-                    ballXSpeed *= 1.5f;
-
-                    ball.Y = player.Y - ball.Height - 3;
-                }
-                if (sec4.IntersectsWith(ball))
-                {
-                    if (ballXSpeed < 5)
-                    {
-                        ballXSpeed = 4;
-
-
-                        ball.Y = player.Y - ball.Height - 3;
-                    }
-                    else
-                    {
-                        ballXSpeed = 2;
-                        ballYSpeed *= 1.2f;
-                        ball.Y = player.Y - ball.Height - 3;
-                    }
-                }
-                else if (sec5.IntersectsWith(ball))
-                {
-                    ball.Y = player.Y - ball.Height - 3;
-                }
-
-                if (ballXSpeed > 8)
-                {
-                    ballXSpeed *= 0.5f;
-                }
-                if (ballYSpeed > 8)
-                {
-                    ballYSpeed *= 0.8f;
+                    intersections(sec1, sec2, sec3, sec4, sec5);
                 }
             }
             for (int i = 0; i < brick.Count; i++)
             {
                 if (brick[i].IntersectsWith(ball))
                 {
+                    SoundPlayer breakPlayer = new SoundPlayer(Properties.Resources.brickBreak);
+                    breakPlayer.Play();
 
+                    Rectangle brickTop = new Rectangle(brick[i].X + 1, brick[i].Y, 28, 1);
+                    Rectangle brickBottom = new Rectangle(brick[i].X + 1, brick[i].Y + regBrickHeight, 28, 1 );
 
-                    if ((ballXSpeed > 0) && (ball.Y > brick[i].Y && ball.Y < brick[i].Y + brick[i].Height - 2))
-                    {
-                        ballXSpeed *= -1;
-                    }
-                    else if ((ballXSpeed < 0) && (ball.Y > brick[i].Y && ball.Y < brick[i].Y + brick[i].Height - 2))
-                    {
-                        ballXSpeed *= -1;
-                    }
-                    else
+                    if (ball.IntersectsWith(brickBottom) || ball.IntersectsWith(brickTop))
                     {
                         ballYSpeed *= -1;
                     }
+                    else
+                    {
+                        ballXSpeed *= -1;
+                    }
+
+                    if (slowBall == false && bigBall == false && bigPlayer == false) { 
+                    int powerupChance = powerGen.Next(1, 10);
+                        if (powerupChance > 1)
+                        {
+                            powers.Add(new Rectangle(brick[i].X + 7, brick[i].Y, powerWidth, powerHeight));
+                            powerupChance = powerGen.Next(1, 4);
+
+                            if (powerupChance == 2)
+                            {
+                                powertype.Add("slowBall");
+                            }
+                            if (powerupChance == 3)
+                            {
+                                powertype.Add("bigPlayer");
+                            }
+                            if (powerupChance == 1)
+                            {
+                                powertype.Add("bigBall");
+                            }
+                        }
+                    }
                     brick.RemoveAt(i);
+                }
+            }
+
+            for (int i = 0; i < powers.Count; i++)
+            {
+                if (player.IntersectsWith(powers[i]) && powerCount == 0)
+                {
+                    powertime = 0;
+                    if (powertype[i] == "slowBall")
+                    {
+                        slowballChange = 0;
+                        slowBall = true;
+                        powers.RemoveAt(i);
+                        powertype.RemoveAt(i);
+
+                        bigBall = false;
+                        bigPlayer = false;
+                    }
+                    else if (powertype[i] == "bigBall")
+                    {
+                        bigBall = true;
+                        powers.RemoveAt(i);
+                        powertype.RemoveAt(i);
+
+
+                        slowBall = false;
+                        bigPlayer = false;
+                    }
+                    else
+                    {
+                        bigPlayer = true;
+                        powers.RemoveAt(i);
+                        powertype.RemoveAt(i);
+
+                        slowBall = false;
+                        bigBall = false;
+                    }
+                    powerCount++;
                 }
             }
 
@@ -392,6 +584,7 @@ namespace brickBreaker
                 else if (gameState == "level 3")
                 {
                     gameState = "over";
+                    gameTimer.Stop();
                 }
             }
             Refresh();
@@ -401,7 +594,7 @@ namespace brickBreaker
         {
             gameTimer.Enabled = true;
 
-            subTitleLabel.Visible = false;
+            subTitleLabel.Text = "";
 
             continueButton.Enabled = false;
             closeButton.Enabled = false;
@@ -413,13 +606,10 @@ namespace brickBreaker
         private void closeButton_Click(object sender, EventArgs e)
         {
             Application.Exit();
-            this.Close();
         }
 
         public void drawBricks(string level)
         {
-
-
             if (level == "level 1")
             {
                 int brickX = 65;
@@ -567,5 +757,65 @@ namespace brickBreaker
 
             }
         }
+
+        public void intersections(Rectangle sec1, Rectangle sec2, Rectangle sec3, Rectangle sec4, Rectangle sec5)
+        {
+            if (sec1.IntersectsWith(ball))
+            {
+                if (ballXSpeed < 5)
+                {
+                    ballXSpeed = -5;
+
+                    ball.Y = player.Y - ball.Height - 3;
+                }
+                else
+                {
+                    ballXSpeed = -2;
+                    ball.Y = player.Y - ball.Height - 3;
+                }
+            }
+            else if (sec2.IntersectsWith(ball))
+            {
+                ballXSpeed *= 1.5f;
+
+                ball.Y = player.Y - ball.Height - 3;
+            }
+            else if (sec3.IntersectsWith(ball))
+            {
+                ballXSpeed *= 1.5f;
+
+                ball.Y = player.Y - ball.Height - 3;
+            }
+            if (sec4.IntersectsWith(ball))
+            {
+                if (ballXSpeed < 5)
+                {
+                    ballXSpeed = 4;
+
+
+                    ball.Y = player.Y - ball.Height - 3;
+                }
+                else
+                {
+                    ballXSpeed = 2;
+                    ballYSpeed *= 1.2f;
+                    ball.Y = player.Y - ball.Height - 3;
+                }
+            }
+            else if (sec5.IntersectsWith(ball))
+            {
+                ball.Y = player.Y - ball.Height - 3;
+            }
+
+            if (ballXSpeed > 8)
+            {
+                ballXSpeed *= 0.5f;
+            }
+            if (ballYSpeed > 8)
+            {
+                ballYSpeed *= 0.8f;
+            }
+        }
     }
-}
+    }
+

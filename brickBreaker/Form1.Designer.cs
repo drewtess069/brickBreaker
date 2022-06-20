@@ -64,7 +64,7 @@
             // subTitleLabel
             // 
             this.subTitleLabel.BackColor = System.Drawing.Color.Transparent;
-            this.subTitleLabel.Font = new System.Drawing.Font("Arcade Interlaced", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.subTitleLabel.Font = new System.Drawing.Font("Arcade Interlaced", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.subTitleLabel.Location = new System.Drawing.Point(13, 211);
             this.subTitleLabel.Name = "subTitleLabel";
             this.subTitleLabel.Size = new System.Drawing.Size(473, 128);
@@ -79,7 +79,7 @@
             this.timeLabel.ForeColor = System.Drawing.Color.White;
             this.timeLabel.Location = new System.Drawing.Point(12, 9);
             this.timeLabel.Name = "timeLabel";
-            this.timeLabel.Size = new System.Drawing.Size(100, 23);
+            this.timeLabel.Size = new System.Drawing.Size(187, 23);
             this.timeLabel.TabIndex = 2;
             this.timeLabel.Text = "time";
             this.timeLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -108,6 +108,7 @@
             this.closeButton.Text = "YES";
             this.closeButton.UseVisualStyleBackColor = true;
             this.closeButton.Visible = false;
+            this.closeButton.Click += new System.EventHandler(this.closeButton_Click);
             // 
             // heart3
             // 

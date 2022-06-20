@@ -83,5 +83,29 @@
   <ItemGroup>
     <None Include="Resources\heart-removebg-preview.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Untitled_Diagram.drawio-removebg-preview.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Untitled Diagram.drawio %281%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Untitled Diagram.drawio %282%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Untitled_Diagram.drawio__1_-removebg-preview %281%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\largePlayer.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Untitled_Diagram.drawio__2_-removebg-preview.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\arkadroid-brick-breaker-gameplay_l5qOpDM3.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\arkadroid-brick-breaker-gameplay-l5qopdm3_i7yl6WnE.wav" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
