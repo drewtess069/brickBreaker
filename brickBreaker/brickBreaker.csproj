@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -44,6 +45,7 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Form1.cs">
@@ -105,7 +107,18 @@
     <None Include="Resources\arkadroid-brick-breaker-gameplay_l5qOpDM3.wav" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\arkadroid-brick-breaker-gameplay-l5qopdm3_i7yl6WnE.wav" />
+    <None Include="Resources\arkadroid-brick-breaker-gameplay-l5qopdm3_i7yl6WnE.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\games-death-sound-effect-1_Aoc5KjN2.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\games-death-sound-effect-1_Aoc5KjN2 %28mp3cut.net%29.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mdk-press-start-free-download_8DI05OPZ.wav" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

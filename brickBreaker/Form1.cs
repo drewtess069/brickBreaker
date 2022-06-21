@@ -9,20 +9,25 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
 using System.Media;
+using System.IO;
 
 namespace brickBreaker
 {
     public partial class Form1 : Form
     {
+        //Set up overlapping sounds
+        System.Windows.Media.MediaPlayer effectPlayer = new System.Windows.Media.MediaPlayer();
+
         //Set up rectangles
 
         Rectangle player = new Rectangle(220, 550, 60, 10);
         Rectangle border = new Rectangle(0, 0, 500, 600);
         Rectangle ball = new Rectangle(245, 500, 10, 10);
-        
-        //Set up random 
+
+        //Set up random gen
         Random powerGen = new Random();
 
+        //Set up all global variables
         int time = 0;
         int timerTick = 0;
         int lives = 3;
@@ -53,34 +58,42 @@ namespace brickBreaker
         bool bigBall = false;
         bool bigPlayer = false;
 
+        //Set up lists for powers and bricks
         List<Rectangle> brick = new List<Rectangle>();
-        List<int> brickWidth = new List<int>();
-        List<int> brickHeight = new List<int>();
         List<Rectangle> powers = new List<Rectangle>();
         List<string> powertype = new List<string>();
 
+        //Set up power images
         Image slowPower = (Properties.Resources.slow);
         Image bigBallPower = (Properties.Resources.largeBall);
         Image bigPlayerPower = (Properties.Resources.largePlayer);
 
+        //Set up brushes
         SolidBrush whiteBrush = new SolidBrush(Color.White);
-        SolidBrush blackBrush = new SolidBrush(Color.Black);
         SolidBrush redBrush = new SolidBrush(Color.Red);
         SolidBrush orangeBrush = new SolidBrush(Color.Orange);
         SolidBrush yellowBrush = new SolidBrush(Color.Yellow);
 
+        //Set up pens
         Pen blackPen = new Pen(Color.Black, 5);
         Pen greenPen = new Pen(Color.DarkGreen, 20);
         public Form1()
         {
             InitializeComponent();
             Cursor.Hide();
+
+            Form form = new Form();
+            form.FormBorderStyle = FormBorderStyle.None;
+            form.WindowState = FormWindowState.Maximized;
+            form.BackColor = Color.Black;
+            form.Show();
         }
 
         public void GameInitialize(string level)
         {
-            brick.Clear();
 
+            //Reset all variables and locations on game start
+            brick.Clear();
             powers.Clear();
             powertype.Clear();
 
@@ -93,17 +106,17 @@ namespace brickBreaker
             ballXSpeed = 1;
             ballYSpeed = 7;
 
-            powers.Clear();
-            powertype.Clear();
-
             timerTick = 0;
 
+            //Begin the countdown to game start
             titleLabel.Text = "3";
             subTitleLabel.Text = "";
 
+            //Change the gamestate
             gameState = $"{level}";
             gameTimer.Enabled = true;
 
+            //Draw different brick layouts for different levels by calling function
             if (gameState == "level 1")
             {
                 drawBricks("level 1");
@@ -123,6 +136,7 @@ namespace brickBreaker
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
+            //Draw title screen
             if (gameState == "waiting")
             {
                 titleLabel.Text = "Brick Breaker";
@@ -134,6 +148,8 @@ namespace brickBreaker
                 e.Graphics.FillEllipse(whiteBrush, ball);
                 e.Graphics.FillRectangle(whiteBrush, player);
             }
+
+            //Adjust screen to display level 1
             if (gameState == "level 1")
             {
                 border.Height = 610;
@@ -145,19 +161,21 @@ namespace brickBreaker
                 e.Graphics.FillEllipse(whiteBrush, ball);
                 e.Graphics.FillRectangle(whiteBrush, player);
 
+                //Draw all bricks
                 for (int i = 0; i < brick.Count; i++)
                 {
                     e.Graphics.FillRectangle(redBrush, brick[i]);
                 }
 
+                //Draw all powerups with different images based on their type
                 for (int i = 0; i < powers.Count; i++)
-                { 
+                {
 
                     if (powertype[i] == "slowBall")
                     {
                         e.Graphics.DrawImage(slowPower, powers[i]);
                     }
-                    else if(powertype[i] == "bigBall")
+                    else if (powertype[i] == "bigBall")
                     {
                         e.Graphics.DrawImage(bigBallPower, powers[i]);
                     }
@@ -167,6 +185,8 @@ namespace brickBreaker
                     }
                 }
             }
+
+            //Adjust screen to display level 1
             if (gameState == "level 2")
             {
                 border.Height = 610;
@@ -178,11 +198,13 @@ namespace brickBreaker
                 e.Graphics.FillEllipse(whiteBrush, ball);
                 e.Graphics.FillRectangle(whiteBrush, player);
 
+                //Draw bricks
                 for (int i = 0; i < brick.Count; i++)
                 {
                     e.Graphics.FillRectangle(orangeBrush, brick[i]);
                 }
 
+                //Draw all powerups with different images based on their type
                 for (int i = 0; i < powers.Count; i++)
                 {
 
@@ -200,6 +222,8 @@ namespace brickBreaker
                     }
                 }
             }
+
+            //Adjust screen to display level 1
             if (gameState == "level 3")
             {
                 border.Height = 610;
@@ -211,11 +235,13 @@ namespace brickBreaker
                 e.Graphics.FillEllipse(whiteBrush, ball);
                 e.Graphics.FillRectangle(whiteBrush, player);
 
+                //Draw bricks
                 for (int i = 0; i < brick.Count; i++)
                 {
                     e.Graphics.FillRectangle(yellowBrush, brick[i]);
                 }
 
+                //Draw all powerups with different images based on their type
                 for (int i = 0; i < powers.Count; i++)
                 {
 
@@ -233,6 +259,8 @@ namespace brickBreaker
                     }
                 }
             }
+
+            //Display game over screen
             if (gameState == "over")
             {
 
@@ -258,20 +286,23 @@ namespace brickBreaker
         {
             switch (e.KeyCode)
             {
+                //Set up player movement
                 case Keys.Right:
                     rightDown = true;
                     break;
                 case Keys.Left:
                     leftDown = true;
                     break;
+
+                //Set up close game and begin game keys
                 case Keys.Space:
                     if (gameState == "waiting" || gameState == "over")
                     {
                         GameInitialize("level 1");
                         time = 0;
                         heart1.BackgroundImage = Properties.Resources.heart;
-                        heart2.BackgroundImage = Properties.Resources.heart;    
-                        heart3.BackgroundImage = Properties.Resources.heart; 
+                        heart2.BackgroundImage = Properties.Resources.heart;
+                        heart3.BackgroundImage = Properties.Resources.heart;
                     }
                     break;
                 case Keys.Escape:
@@ -299,6 +330,7 @@ namespace brickBreaker
 
         private void Form1_KeyUp(object sender, KeyEventArgs e)
         {
+            //If movements keys are not pressed, player should not be moving
             switch (e.KeyCode)
             {
                 case Keys.Right:
@@ -313,8 +345,23 @@ namespace brickBreaker
         private void gameTimer_Tick(object sender, EventArgs e)
         {
             powertime++;
-
             timerTick++;
+
+            //Finish Countdown
+            if (timerTick == 50)
+            {
+                titleLabel.Text = "2";
+            }
+            else if (timerTick == 100)
+            {
+                titleLabel.Text = "1";
+            }
+            else if (timerTick == 150)
+            {
+                titleLabel.Text = "";
+            }
+
+            //Track how long it takes for player to complete all levels
             if (timerTick % 50 == 0 && titleLabel.Text == "")
             {
                 time++;
@@ -322,9 +369,10 @@ namespace brickBreaker
                 timeLabel.Text = $"Time: {time}";
             }
 
+            //Check for powerups and adjust gameplay based active powerups
             if (slowBall == true)
             {
-                if (powertime < 150)
+                if (powertime < 100)
                 {
                     if (slowballChange == 0)
                     {
@@ -335,15 +383,15 @@ namespace brickBreaker
                 }
                 else
                 {
-                    ballXSpeed *=1.5f;
-                    ballYSpeed *=1.5f;
+                    ballXSpeed *= 1.5f;
+                    ballYSpeed *= 1.5f;
                     slowBall = false;
                     powerCount = 0;
                 }
             }
             else if (bigBall == true)
             {
-                if (powertime < 150)
+                if (powertime < 180)
                 {
                     ball.Width = 20;
                     ball.Height = 20;
@@ -358,33 +406,19 @@ namespace brickBreaker
             }
             else if (bigPlayer == true)
             {
-                if (powertime < 150)
+                if (powertime < 180)
                 {
-                    //player.X -= 10;
                     player.Width = 80;
                 }
                 else
                 {
                     bigPlayer = false;
-                    //player.X += 10;
                     player.Width -= 20;
                     powerCount = 0;
                 }
             }
 
-            if (timerTick == 50)
-            {
-                titleLabel.Text = "2";
-            }
-            else if (timerTick == 100)
-            {
-                titleLabel.Text = "1";
-            }
-            else if (timerTick == 150)
-            {
-                titleLabel.Text = "";
-            }
-
+            //Move ball and any existing powers if countdown is over
             if (timerTick > 150)
             {
                 ball.X += (int)ballXSpeed;
@@ -394,35 +428,46 @@ namespace brickBreaker
                 {
                     int y = powers[i].Y + powerSpeed;
                     powers[i] = new Rectangle(powers[i].X, y, powers[i].Width, powers[i].Height);
-                    //  powers[i].Y + powerSpeed;
                 }
             }
-            //move hero 
+
+            //move hero and set boundaries
             if (leftDown == true && player.X > 0 + borderWidth)
             {
                 player.X -= playerSpeed;
             }
-
             if (rightDown == true && player.X < this.Width - player.Width - borderWidth)
             {
                 player.X += playerSpeed;
             }
+
+            //If ball hits edge of screen, change direction
             if (ball.X < 0 + borderWidth || ball.X > this.Width - borderWidth - ball.Width)
             {
+                effectPlayer.Open(new Uri(Application.StartupPath + "/Resources/arkadroid-brick-breaker-gameplay-l5qopdm3_i7yl6WnE.wav"));
+                effectPlayer.Play();
+
                 ballXSpeed *= -1;
             }
             if (ball.Y < 0 + borderWidth)
             {
+                effectPlayer.Open(new Uri(Application.StartupPath + "/Resources/arkadroid-brick-breaker-gameplay-l5qopdm3_i7yl6WnE.wav"));
+                effectPlayer.Play();
+
                 ballYSpeed *= -1;
             }
             if (ball.Y > this.Height)
             {
+                SoundPlayer deathPlayer = new SoundPlayer(Properties.Resources.death);
+                deathPlayer.Play();
+
                 ballYSpeed = 7;
                 ballXSpeed = 6;
 
                 player.X = 220;
                 player.Y = 550;
 
+                //Take away a life if ball gets past player
                 if (heart1.BackgroundImage != null)
                 {
                     heart1.BackgroundImage = null;
@@ -467,36 +512,47 @@ namespace brickBreaker
 
                 if (bigPlayer == false)
                 {
-
+                    //Create different sections of player so ball bounces different directions based on where it hits
                     Rectangle sec1 = new Rectangle(player.X, player.Y, 12, 10);
                     Rectangle sec2 = new Rectangle(player.X + 12, player.Y, 12, 10);
                     Rectangle sec3 = new Rectangle(player.X + 36, player.Y, 12, 10);
                     Rectangle sec4 = new Rectangle(player.X + 48, player.Y, 12, 10);
                     Rectangle sec5 = new Rectangle(player.X + 24, player.Y, 12, 10);
 
+                    //Call the intersections function based on the section of player that is hit by ball
                     intersections(sec1, sec2, sec3, sec4, sec5);
                 }
                 else
                 {
+                    //Check i big player powerup is active and adjust player sections if true
                     Rectangle sec1 = new Rectangle(player.X, player.Y, 12, 10);
                     Rectangle sec2 = new Rectangle(player.X + 16, player.Y, 12, 10);
                     Rectangle sec3 = new Rectangle(player.X + 48, player.Y, 12, 10);
                     Rectangle sec4 = new Rectangle(player.X + 64, player.Y, 12, 10);
                     Rectangle sec5 = new Rectangle(player.X + 32, player.Y, 12, 10);
 
+                    //Call the intersections function based on the section of player that is hit by ball
                     intersections(sec1, sec2, sec3, sec4, sec5);
                 }
             }
+
+            //Check if the ball hits any brick
             for (int i = 0; i < brick.Count; i++)
             {
                 if (brick[i].IntersectsWith(ball))
                 {
-                    SoundPlayer breakPlayer = new SoundPlayer(Properties.Resources.brickBreak);
-                    breakPlayer.Play();
+                    //Play a sound for the brick breaking
+                    //SoundPlayer breakPlayer = new SoundPlayer(Properties.Resources.brickBreak);
+                    //breakPlayer.Play();
 
-                    Rectangle brickTop = new Rectangle(brick[i].X + 1, brick[i].Y, 28, 1);
-                    Rectangle brickBottom = new Rectangle(brick[i].X + 1, brick[i].Y + regBrickHeight, 28, 1 );
+                    effectPlayer.Open(new Uri(Application.StartupPath + "/Resources/arkadroid-brick-breaker-gameplay-l5qopdm3_i7yl6WnE.wav"));
+                    effectPlayer.Play();
 
+                    //Create sections of bricks to make bounces as realistic as possible
+                    Rectangle brickTop = new Rectangle(brick[i].X + 2, brick[i].Y, 26, 1);
+                    Rectangle brickBottom = new Rectangle(brick[i].X + 2, brick[i].Y + regBrickHeight, 26, 1);
+
+                    //Check the section of the brick being hit
                     if (ball.IntersectsWith(brickBottom) || ball.IntersectsWith(brickTop))
                     {
                         ballYSpeed *= -1;
@@ -506,13 +562,18 @@ namespace brickBreaker
                         ballXSpeed *= -1;
                     }
 
-                    if (slowBall == false && bigBall == false && bigPlayer == false) { 
-                    int powerupChance = powerGen.Next(1, 10);
-                        if (powerupChance > 1)
+                    //If no powerups are currently active, bricks can spawn powerups when broken
+                    if (slowBall == false && bigBall == false && bigPlayer == false)
+                    {
+                        int powerupChance = powerGen.Next(1, 10);
+
+                        //Randomly generate when bricks create powerups (Approximately 20% of bricks create powerups)
+                        if (powerupChance > 7)
                         {
                             powers.Add(new Rectangle(brick[i].X + 7, brick[i].Y, powerWidth, powerHeight));
                             powerupChance = powerGen.Next(1, 4);
 
+                            //Determine which type of power is being created and added to list
                             if (powerupChance == 2)
                             {
                                 powertype.Add("slowBall");
@@ -527,10 +588,12 @@ namespace brickBreaker
                             }
                         }
                     }
+                    //Remove the brick that is hit
                     brick.RemoveAt(i);
                 }
             }
 
+            //Check if player hits a powerup and if no powerups are currently active, activate the power
             for (int i = 0; i < powers.Count; i++)
             {
                 if (player.IntersectsWith(powers[i]) && powerCount == 0)
@@ -539,6 +602,8 @@ namespace brickBreaker
                     if (powertype[i] == "slowBall")
                     {
                         slowballChange = 0;
+
+                        //Uses booleans to enable powerups
                         slowBall = true;
                         powers.RemoveAt(i);
                         powertype.RemoveAt(i);
@@ -565,10 +630,12 @@ namespace brickBreaker
                         slowBall = false;
                         bigBall = false;
                     }
+                    //Increase the powercount so no other powerups can be used
                     powerCount++;
                 }
             }
 
+            //When all bricks are broken, move to next level or end screen if it was final level
             if (brick.Count == 0)
             {
                 if (gameState == "level 1")
@@ -590,6 +657,7 @@ namespace brickBreaker
             Refresh();
         }
 
+        //In the pause menu the player can either close the game or continue playing
         private void continueButton_Click(object sender, EventArgs e)
         {
             gameTimer.Enabled = true;
@@ -603,6 +671,7 @@ namespace brickBreaker
             closeButton.Visible = false;
         }
 
+        //If a player chooses the close button in the pause menu, the game is ended and closed
         private void closeButton_Click(object sender, EventArgs e)
         {
             Application.Exit();
@@ -610,6 +679,8 @@ namespace brickBreaker
 
         public void drawBricks(string level)
         {
+
+            //Draw brick pattern for first level
             if (level == "level 1")
             {
                 int brickX = 65;
@@ -627,6 +698,8 @@ namespace brickBreaker
                     brickY += 50;
                 }
             }
+
+            //Draw brick pattern for second level
             else if (level == "level 2")
             {
                 int brickX = 70;
@@ -681,9 +754,11 @@ namespace brickBreaker
                     brickX += 40;
                 }
             }
+
+            //Draw brick battern for level 3
             else
             {
-                int brickX = 45;
+                int brickX = 55;
                 int brickY = 15;
 
 
@@ -760,6 +835,7 @@ namespace brickBreaker
 
         public void intersections(Rectangle sec1, Rectangle sec2, Rectangle sec3, Rectangle sec4, Rectangle sec5)
         {
+            //Check which section of player makes contact with the ball, adjust the bounce accordingly
             if (sec1.IntersectsWith(ball))
             {
                 if (ballXSpeed < 5)
@@ -817,5 +893,5 @@ namespace brickBreaker
             }
         }
     }
-    }
+}
 
