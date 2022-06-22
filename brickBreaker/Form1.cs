@@ -391,7 +391,7 @@ namespace brickBreaker
             }
             else if (bigBall == true)
             {
-                if (powertime < 180)
+                if (powertime < 200)
                 {
                     ball.Width = 20;
                     ball.Height = 20;
@@ -406,7 +406,7 @@ namespace brickBreaker
             }
             else if (bigPlayer == true)
             {
-                if (powertime < 180)
+                if (powertime < 200)
                 {
                     player.Width = 80;
                 }
@@ -460,6 +460,9 @@ namespace brickBreaker
             {
                 SoundPlayer deathPlayer = new SoundPlayer(Properties.Resources.death);
                 deathPlayer.Play();
+
+                powers.Clear();
+                powertype.Clear();
 
                 ballYSpeed = 7;
                 ballXSpeed = 6;
